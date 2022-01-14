@@ -1,34 +1,46 @@
-function setup() {
-  canvas = createCanvas(300, 300);
-  canvas.center();
-  video = createCapture(VIDEO);
-  video.hide();
-  classifier= ml5.imageClassifier('mobileNet', modelLoaded)
-}
-
-function modelLoaded()
+noseX = 0;
+noseY = 0;
+function preload()
 {
-  console.log("model is loaded");
+    //clownnose = loadImage('https://i.postimg.cc/7ZBcjDqp/clownnose.png');
 }
 
+function setup()
+{
+    canvas = createCanvas(300, 300);
+    canvas.center();
+    video = createCapture(VIDEO);
+    video.size(300, 300);
+    video.hide();
+    video.center();
+
+    posenet = ml5.poseNet(video, ModelLoaded);
+    posenet.on('pose', gotPoses);
+}
+function ModelLoaded()
+{
+    console.log("Posenet has been intialised");
+}
+function gotPoses(results)
+{
+    if(results.length > 0)
+    {
+        console.log("length");
+        console.log("nose x" + results[0].pose.nose.x);
+        console.log("nose y" + results[0].pose.nose.y);
+        noseX = results[0].pose.nose.x;
+        noseY = results[0].pose.nose.y;
+    }
+}
 function draw()
 {
-  image(video, 0, 0, 300, 300);
-  classifier.classify(video, gotResult);
+    image(video, 0, 0, 300, 300);
+    //image(clownnose, noseX, noseY, 30, 30);
+    fill(255,0,0);
+    stroke(255,0,0);
+    circle(noseX, noseY, 20);
 }
-
-function gotResult(error, results)
+function take_snapshot()
 {
-  if(error)
-  {
-    console.error(error)
-  }
-  else
-  {
-    console.log(results);
-    document.getElementById("result_object_name").innerHTML = results[0].label;
-    document.getElementById("result_object_accuracy").innerHTML = results[0].confidence.toFixed(2)*100 + "%";
-  }
+    save('picture');
 }
-
-
